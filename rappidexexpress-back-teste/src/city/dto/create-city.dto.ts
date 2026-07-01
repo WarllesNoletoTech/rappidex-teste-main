@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNumber, IsOptional, IsString, Length, Min } from 'class-validator';
 
 export class CreateCityDto {
   @IsString()
@@ -17,11 +18,15 @@ export class CreateCityDto {
   @IsOptional()
   deliveryValue?: string;
 
+  @Transform(({ value }) => normalizeCurrencyValue(value))
   @IsNumber()
+  @Min(0)
   @IsOptional()
   deliveryFeeValue?: number;
 
+  @Transform(({ value }) => normalizeCurrencyValue(value))
   @IsNumber()
+  @Min(0)
   @IsOptional()
   monthlyFeeValue?: number;
 
@@ -40,4 +45,17 @@ export class CreateCityDto {
   @IsString()
   @IsOptional()
   whatsappCloudToken?: string;
+}
+
+function normalizeCurrencyValue(value: unknown) {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  const normalized = String(value).includes(',')
+    ? String(value).replace(/\./g, '').replace(',', '.')
+    : String(value);
+  const parsed = Number(normalized);
+
+  return Number.isFinite(parsed) ? parsed : value;
 }
