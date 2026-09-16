@@ -95,3 +95,7 @@ Esse modo pode adicionar centenas de milhares de linhas e consumir bastante arma
 - Não precisa apagar o Supabase antes da importação.
 - Mantenha o MongoDB antigo ativo até concluir `db:verify` e validar o Rappidex.
 - Desative o polling iFood no ambiente de teste durante uma importação grande se quiser evitar concorrência desnecessária.
+
+
+## Compatibilidade de créditos iFood muito altos
+Os contadores e históricos de créditos iFood usam `numeric(30,0)` no PostgreSQL para preservar valores legados acima do limite de `bigint`.
