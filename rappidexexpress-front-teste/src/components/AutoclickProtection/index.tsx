@@ -8,12 +8,10 @@ const AUTOCLICK_REASON = 'Uso suspeito de autoclick'
 const BLOCKED_MESSAGE = 'Seu acesso foi bloqueado por uso suspeito de autoclick. Procure o administrador.'
 const TOLERANCE = 8
 const MAX_CLICKS = 10
-const CLICK_WINDOW_MS = 3000
 
 type ClickPosition = {
   x: number
   y: number
-  timestamp: number
 }
 
 export function AutoclickProtection() {
@@ -21,14 +19,12 @@ export function AutoclickProtection() {
   const navigate = useNavigate()
   const lastClickRef = useRef<ClickPosition | null>(null)
   const sameClickCountRef = useRef(0)
-  const firstClickTimestampRef = useRef<number | null>(null)
   const blockingRef = useRef(false)
 
   useEffect(() => {
     if (permission !== 'motoboy' || !token) {
       lastClickRef.current = null
       sameClickCountRef.current = 0
-      firstClickTimestampRef.current = null
       blockingRef.current = false
       return
     }
@@ -36,24 +32,17 @@ export function AutoclickProtection() {
     async function handleClick(event: MouseEvent) {
       if (blockingRef.current) return
 
-      const currentClick = {
-        x: event.clientX,
-        y: event.clientY,
-        timestamp: Date.now(),
-      }
+      const currentClick = { x: event.clientX, y: event.clientY }
       const lastClick = lastClickRef.current
-      const isSamePosition = lastClick &&
+
+      if (
+        lastClick &&
         Math.abs(currentClick.x - lastClick.x) <= TOLERANCE &&
         Math.abs(currentClick.y - lastClick.y) <= TOLERANCE
-      const firstClickTimestamp = firstClickTimestampRef.current
-      const isWithinClickWindow = firstClickTimestamp !== null &&
-        currentClick.timestamp - firstClickTimestamp <= CLICK_WINDOW_MS
-
-      if (isSamePosition && isWithinClickWindow) {
+      ) {
         sameClickCountRef.current += 1
       } else {
         sameClickCountRef.current = 1
-        firstClickTimestampRef.current = currentClick.timestamp
       }
 
       lastClickRef.current = currentClick
