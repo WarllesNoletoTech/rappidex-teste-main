@@ -1092,6 +1092,11 @@ export function Dashboard() {
         if (isCurrentUserSuperAdmin && currentCityId) {
           deliveryParams.set("cityId", currentCityId);
         }
+        // A lista precisa usar exatamente o mesmo período dos contadores.
+        // Sem isso, o contador considera a semana selecionada, mas os cards
+        // podem trazer entregas históricas PENDENTE/ACAMINHO do banco inteiro.
+        deliveryParams.set("createdIn", adminCounterDateRange.start);
+        deliveryParams.set("createdUntil", adminCounterDateRange.end);
 
         const countsUrl = countsParams.toString()
           ? `/delivery/counts?${countsParams.toString()}`
